@@ -22,6 +22,8 @@
     --amber:#b3812a;
     --amber-bg:#f2e4c4;
     --blue:#2b3a52;
+    --purple:#6b4a7a;
+    --purple-bg:#e9dff0;
     --shadow:rgba(33,28,22,.18);
   }
   *{box-sizing:border-box;}
@@ -36,7 +38,6 @@
     -webkit-font-smoothing:antialiased;
     position:relative;
   }
-  /* paper grain */
   body::before{
     content:"";
     position:fixed;inset:0;
@@ -67,7 +68,7 @@
   .subtitle{
     font-family:"Spectral",serif;font-style:italic;
     font-size:clamp(15px,2.4vw,19px);color:var(--ink-soft);
-    margin:14px auto 0;max-width:560px;
+    margin:14px auto 0;max-width:600px;
   }
   .dateline{
     display:flex;justify-content:space-between;align-items:center;
@@ -125,8 +126,11 @@
     background-repeat:no-repeat;background-position:right 12px center;padding-right:30px;}
   .hint{font-family:"Spectral",serif;font-style:italic;font-size:13px;color:var(--ink-faint);margin-top:6px;}
   .hint a{color:var(--blue);}
+  .hint b{color:var(--green);font-style:normal;}
   .check{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.06em;color:var(--ink-soft);cursor:pointer;}
   .check input{width:auto;}
+  .options-row{display:flex;flex-wrap:wrap;gap:18px;padding-top:4px;}
+  .options-row .check{margin:0;}
 
   /* article input */
   textarea#article{
@@ -177,10 +181,13 @@
   .tally .num{font-family:"Fraunces",serif;font-weight:900;font-size:34px;line-height:1;}
   .tally .cap{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:7px;}
   .num.green{color:var(--green);} .num.amber{color:var(--amber);} .num.red{color:var(--red);} .num.tot{color:var(--ink);}
+  .num.purple{color:var(--purple);}
 
-  /* claims ledger */
+  /* section heads */
   .ledger-head{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);margin:38px 0 4px;display:flex;align-items:center;gap:10px;}
   .ledger-head::after{content:"";flex:1;height:1px;background:var(--rule);}
+
+  /* claim card */
   .claim{
     border:1px solid var(--rule);border-left-width:5px;
     background:rgba(255,252,245,.55);padding:18px 20px;margin-top:14px;
@@ -202,6 +209,28 @@
   .badge-unverified{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);border:1px dashed var(--red);padding:2px 6px;margin-left:8px;}
   .note{font-family:"Spectral",serif;font-size:13.5px;color:var(--ink-faint);margin-top:9px;}
 
+  /* loaded language */
+  .loaded-card{
+    border:1px solid var(--rule);border-left:5px solid var(--purple);
+    background:rgba(255,252,245,.55);padding:18px 20px;margin-top:14px;
+    box-shadow:2px 2px 0 var(--shadow);animation:rise .45s ease both;
+  }
+  .loaded-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;}
+  .loaded-phrase{font-family:"Fraunces",serif;font-weight:600;font-size:18px;color:var(--ink);}
+  .loaded-kind{font-family:"JetBrains Mono",monospace;font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple);}
+
+  /* dig deeper */
+  .dig-card{
+    border:1px solid var(--rule);background:rgba(255,252,245,.55);
+    padding:18px 20px;margin-top:14px;box-shadow:2px 2px 0 var(--shadow);
+    animation:rise .45s ease both;
+  }
+  .dig-q{font-family:"Fraunces",serif;font-weight:600;font-size:17px;color:var(--ink);margin-bottom:8px;line-height:1.3;}
+  .dig-why{font-family:"Spectral",serif;font-style:italic;font-size:14px;color:var(--ink-soft);margin-bottom:10px;}
+  .dig-sources{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-soft);line-height:1.7;}
+  .dig-sources .k{color:var(--ink-faint);text-transform:uppercase;font-size:9.5px;letter-spacing:.12em;margin-right:6px;}
+  .dig-sources a{color:var(--blue);}
+
   .empty{text-align:center;font-family:"Spectral",serif;font-style:italic;color:var(--ink-faint);padding:30px;border:1px dashed var(--rule);margin-top:14px;}
 
   @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
@@ -221,10 +250,10 @@
   <header class="masthead">
     <div class="kicker">A Reading Instrument · Bring Your Own Key</div>
     <h1 class="title">PROVENANCE<span class="dot">.</span></h1>
-    <p class="subtitle">Paste an article. See which statistics the writer actually sourced, which they hand-waved, and how much of the piece is opinion wearing a lab coat.</p>
+    <p class="subtitle">Paste an article. See which statistics the writer actually sourced, which they hand-waved, where the rhetoric is doing the work, and how much of the piece is opinion wearing a lab coat.</p>
     <div class="dateline">
       <span id="dateline-left">The Sourcing Desk</span>
-      <span id="dateline-right">No. 001</span>
+      <span id="dateline-right">No. 002</span>
     </div>
   </header>
 
@@ -235,8 +264,10 @@
         <div class="field">
           <label class="lbl" for="provider">Provider</label>
           <select id="provider">
+            <option value="google">Google (Gemini) — has free tier</option>
             <option value="openai">OpenAI</option>
             <option value="anthropic">Anthropic (Claude)</option>
+            <option value="xai">xAI (Grok)</option>
           </select>
         </div>
         <div class="field">
@@ -250,8 +281,8 @@
       </div>
       <div class="field">
         <label class="lbl" for="apikey">API key</label>
-        <input type="password" id="apikey" placeholder="sk-..." autocomplete="off" spellcheck="false">
-        <div class="hint">Your key is sent <b>only</b> to the provider you choose, straight from your browser — never to me, never to any server. Get one from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI</a> or <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic</a>.</div>
+        <input type="password" id="apikey" placeholder="paste your key here" autocomplete="off" spellcheck="false">
+        <div class="hint" id="provider-hint"></div>
       </div>
       <div class="field">
         <label class="check"><input type="checkbox" id="remember"> Remember this key on this device (saved in your browser only)</label>
@@ -266,6 +297,12 @@
       <span id="wordcount">0 words</span>
       <span id="lengthnote"></span>
     </div>
+
+    <div class="options-row" style="margin-top:14px;">
+      <label class="check"><input type="checkbox" id="opt-loaded" checked> Flag loaded language</label>
+      <label class="check"><input type="checkbox" id="opt-dig" checked> Suggest ways to dig deeper</label>
+    </div>
+
     <div class="actions">
       <button class="analyze" id="analyzeBtn">Run the Audit</button>
     </div>
@@ -278,6 +315,7 @@
   <footer class="colophon">
     <div><b>PROVENANCE</b> reports only what the article itself provides. It does <b>not</b> verify whether a claim is true, and it does <b>not</b> hunt down sources on its own.</div>
     <div>A named source is not the same as a good source — a stat from a lobby group is still "sourced." Judgment is yours.</div>
+    <div>"Dig deeper" suggestions are research starting points, not authoritative answers. Numbers from those sources should always be checked at the source itself.</div>
     <div style="margin-top:8px;">Runs entirely in your browser on your own AI key · nothing is stored or sent anywhere else.</div>
   </footer>
 
@@ -292,7 +330,13 @@
   function lsSet(k,v){ try{ window.localStorage.setItem(k,v); }catch(e){} }
   function lsDel(k){ try{ window.localStorage.removeItem(k); }catch(e){} }
 
+  // ---- provider/model registry ----
   var MODELS = {
+    google: [
+      {id:"gemini-2.5-flash", label:"gemini-2.5-flash  (free tier · recommended)"},
+      {id:"gemini-2.5-pro",   label:"gemini-2.5-pro  (stronger)"},
+      {id:"__custom__",       label:"Custom…"}
+    ],
     openai: [
       {id:"gpt-4o-mini", label:"gpt-4o-mini  (cheapest)"},
       {id:"gpt-4o",      label:"gpt-4o  (stronger)"},
@@ -302,7 +346,19 @@
       {id:"claude-haiku-4-5-20251001", label:"claude-haiku-4-5  (cheapest)"},
       {id:"claude-sonnet-4-6",         label:"claude-sonnet-4-6  (stronger)"},
       {id:"__custom__",                label:"Custom…"}
+    ],
+    xai: [
+      {id:"grok-4-fast",      label:"grok-4-fast  (cheaper)"},
+      {id:"grok-4",           label:"grok-4  (stronger)"},
+      {id:"__custom__",       label:"Custom…"}
     ]
+  };
+
+  var HINTS = {
+    google:    'Get a key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>. <b>Free tier available — no payment method required for the daily-limited free use.</b>',
+    openai:    'Get a key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI</a>. Pay-as-you-go; add ~$5 of credit and a typical article costs a fraction of a cent.',
+    anthropic: 'Get a key from <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Anthropic</a>. Pay-as-you-go; add ~$5 of credit and a typical article costs a fraction of a cent.',
+    xai:       'Get a key from <a href="https://console.x.ai" target="_blank" rel="noopener">xAI Console</a>. Pay-as-you-go, no free tier.'
   };
 
   var el = function(id){ return document.getElementById(id); };
@@ -312,15 +368,17 @@
       customModel  = el("custom-model"),
       keyInput     = el("apikey"),
       rememberChk  = el("remember"),
+      providerHint = el("provider-hint"),
       article      = el("article"),
       wordcount    = el("wordcount"),
       lengthnote   = el("lengthnote"),
+      optLoaded    = el("opt-loaded"),
+      optDig       = el("opt-dig"),
       analyzeBtn   = el("analyzeBtn"),
       statusEl     = el("status"),
       errslot      = el("errslot"),
       results      = el("results");
 
-  // ---- populate models ----
   function fillModels(){
     var prov = providerSel.value;
     modelSel.innerHTML = "";
@@ -330,6 +388,7 @@
       modelSel.appendChild(o);
     });
     onModelChange();
+    providerHint.innerHTML = HINTS[prov] || "";
   }
   function onModelChange(){
     customField.style.display = (modelSel.value === "__custom__") ? "block" : "none";
@@ -337,28 +396,38 @@
   providerSel.addEventListener("change", function(){ fillModels(); lsSet("prov", providerSel.value); });
   modelSel.addEventListener("change", function(){ onModelChange(); lsSet("model_"+providerSel.value, modelSel.value); });
 
-  // ---- restore saved prefs ----
   (function restore(){
     var p = lsGet("prov"); if(p && MODELS[p]) providerSel.value = p;
     fillModels();
     var sm = lsGet("model_"+providerSel.value);
     if(sm){ for(var i=0;i<modelSel.options.length;i++){ if(modelSel.options[i].value===sm){ modelSel.value=sm; } } onModelChange(); }
     var cm = lsGet("custommodel"); if(cm) customModel.value = cm;
-    var k = lsGet("apikey");
+    var k = lsGet("apikey_"+providerSel.value);
     if(k){ keyInput.value = k; rememberChk.checked = true; }
+    var oL = lsGet("opt-loaded"); if(oL!==null) optLoaded.checked = (oL==="1");
+    var oD = lsGet("opt-dig");    if(oD!==null) optDig.checked    = (oD==="1");
   })();
+  providerSel.addEventListener("change", function(){
+    var k = lsGet("apikey_"+providerSel.value);
+    keyInput.value = k || "";
+    rememberChk.checked = !!k;
+  });
   customModel.addEventListener("input", function(){ if(rememberChk.checked) lsSet("custommodel", customModel.value); });
+  optLoaded.addEventListener("change", function(){ lsSet("opt-loaded", optLoaded.checked?"1":"0"); });
+  optDig.addEventListener("change",    function(){ lsSet("opt-dig",    optDig.checked?"1":"0"); });
 
   rememberChk.addEventListener("change", function(){
     if(rememberChk.checked){ persistKey(); }
-    else { lsDel("apikey"); lsDel("custommodel"); }
+    else { lsDel("apikey_"+providerSel.value); lsDel("custommodel"); }
   });
   function persistKey(){
-    if(rememberChk.checked){ lsSet("apikey", keyInput.value.trim()); lsSet("custommodel", customModel.value); }
+    if(rememberChk.checked){
+      lsSet("apikey_"+providerSel.value, keyInput.value.trim());
+      lsSet("custommodel", customModel.value);
+    }
   }
   keyInput.addEventListener("input", persistKey);
 
-  // ---- word counter ----
   function updateCount(){
     var t = article.value.trim();
     var words = t ? t.split(/\s+/).length : 0;
@@ -371,34 +440,63 @@
   article.addEventListener("input", updateCount);
   updateCount();
 
-  // ---- the prompt (this is the actual tool) ----
-  var SYSTEM = [
-    "You are a sourcing and rhetoric analyst examining a single article.",
-    "Your job is NOT to verify whether any claim is true, and NOT to find sources yourself.",
-    "Report ONLY what the article text itself provides.",
-    "",
-    "Find every statistical or quantitative factual claim: any specific number, percentage, rate, count, ratio, monetary figure, poll result, measured quantity, or statistical finding presented as fact.",
-    "For each, decide, based SOLELY on the article text, how the writer attributed it:",
-    "  - \"named\": attributed to a specific identifiable source (a named organization, named study/report, named publication, or a named person with relevant affiliation).",
-    "  - \"vague\": attributed only vaguely with no identifiable source (e.g. 'studies show', 'experts say', 'research suggests', 'data indicates').",
-    "  - \"unsourced\": stated as fact with no attribution at all.",
-    "",
-    "STRICT RULES:",
-    "- Only include claims that actually appear in the provided text. Never invent, infer, or add claims from outside knowledge.",
-    "- For 'quote', copy the exact sentence from the article (verbatim, character-for-character) that contains the statistic.",
-    "- 'source_stated' = the source exactly as the article names it, or null if none.",
-    "- 'url' = a URL ONLY if one literally appears in the provided text for that claim, else null.",
-    "- Do NOT judge truth or quality. Report only what the article provides.",
-    "",
-    "Also estimate, for the whole article, what percentage of its substantive content is opinion / interpretation / rhetoric / persuasion versus verifiable factual claims. Give 'opinion_percentage' as an integer 0-100.",
-    "Give a one-sentence 'summary' describing the article's sourcing discipline and opinion character.",
-    "",
-    "Return ONLY valid JSON (no markdown, no code fences, no commentary) in EXACTLY this shape:",
-    "{\"claims\":[{\"statistic\":\"...\",\"quote\":\"...\",\"sourcing\":\"named|vague|unsourced\",\"source_stated\":\"... or null\",\"url\":\"... or null\",\"note\":\"short neutral note\"}],\"opinion_percentage\":0,\"summary\":\"...\"}"
-  ].join("\n");
+  // ---- prompt builder ----
+  function buildSystem(includeLoaded, includeDig){
+    var parts = [
+      "You are a sourcing and rhetoric analyst examining a single article.",
+      "Your job is NOT to verify whether any claim is true, and NOT to find sources yourself.",
+      "Report ONLY what the article text itself provides.",
+      "",
+      "Find every statistical or quantitative factual claim: any specific number, percentage, rate, count, ratio, monetary figure, poll result, measured quantity, or statistical finding presented as fact.",
+      "For each, decide, based SOLELY on the article text, how the writer attributed it:",
+      "  - \"named\": attributed to a specific identifiable source (a named organization, named study/report, named publication, or a named person with relevant affiliation).",
+      "  - \"vague\": attributed only vaguely with no identifiable source (e.g. 'studies show', 'experts say', 'research suggests', 'data indicates').",
+      "  - \"unsourced\": stated as fact with no attribution at all.",
+      "",
+      "STRICT RULES for claims:",
+      "- Only include claims that actually appear in the provided text. Never invent, infer, or add claims from outside knowledge.",
+      "- For 'quote', copy the exact sentence from the article (verbatim, character-for-character) that contains the statistic.",
+      "- 'source_stated' = the source exactly as the article names it, or null if none.",
+      "- 'url' = a URL ONLY if one literally appears in the provided text for that claim, else null.",
+      "- Do NOT judge truth or quality. Report only what the article provides.",
+      "",
+      "Also estimate, for the whole article, what percentage of its substantive content is opinion / interpretation / rhetoric / persuasion versus verifiable factual claims. Give 'opinion_percentage' as an integer 0-100.",
+      "Give a one-sentence 'summary' describing the article's sourcing discipline and opinion character."
+    ];
+
+    if(includeLoaded){
+      parts.push(
+        "",
+        "ALSO identify up to 10 instances of LOADED LANGUAGE in the article — words or short phrases that do rhetorical work rather than describing neutrally. These include emotionally charged framings, euphemisms ('enhanced interrogation'), dysphemisms ('regime' vs 'government'), intensifiers presented as fact ('skyrocketed', 'crisis', 'plummeted'), dismissive framings ('fringe', 'so-called', 'self-styled'), persuasive framings ('common-sense', 'obvious', 'clearly'), and similar.",
+        "Return them in 'loaded_language' as an array of objects: { \"phrase\": \"...\", \"quote\": \"exact sentence verbatim from the article\", \"kind\": \"short tag like 'intensifier', 'dismissive', 'euphemism', 'charged framing'\", \"note\": \"one short neutral sentence explaining what work the phrase is doing\" }.",
+        "Do NOT flag neutral descriptive language. Do NOT include the same phrase twice. If there are no clear examples, return an empty array."
+      );
+    } else {
+      parts.push("", "Return 'loaded_language' as an empty array.");
+    }
+
+    if(includeDig){
+      parts.push(
+        "",
+        "ALSO produce up to 4 'dig_deeper' suggestions — research directions a curious reader could pursue to put the article in broader context. These are NOT meant to support or refute the article. Each should be a clear question and point to 1-2 well-known, authoritative starting-point sources by NAME ONLY (do NOT invent URLs — name the institution/dataset, e.g., 'Pew Research Center', 'US Bureau of Labor Statistics', 'OECD Education at a Glance', 'Our World in Data', 'FRED (St Louis Fed)', 'Kaiser Family Foundation', 'World Bank Open Data', 'CDC WONDER', 'NCES', 'Gallup', 'Reuters Institute Digital News Report').",
+        "Return them in 'dig_deeper' as an array of objects: { \"question\": \"...\", \"why\": \"one short sentence explaining what this would reveal\", \"sources\": [\"Institution Name 1\", \"Institution Name 2\"] }.",
+        "ONLY suggest sources you are confident exist and are authoritative. If you cannot think of any, return an empty array. DO NOT fabricate or guess source names."
+      );
+    } else {
+      parts.push("", "Return 'dig_deeper' as an empty array.");
+    }
+
+    parts.push(
+      "",
+      "Return ONLY valid JSON (no markdown, no code fences, no commentary) in EXACTLY this shape:",
+      "{\"claims\":[{\"statistic\":\"...\",\"quote\":\"...\",\"sourcing\":\"named|vague|unsourced\",\"source_stated\":\"... or null\",\"url\":\"... or null\",\"note\":\"short neutral note\"}],\"loaded_language\":[{\"phrase\":\"...\",\"quote\":\"...\",\"kind\":\"...\",\"note\":\"...\"}],\"dig_deeper\":[{\"question\":\"...\",\"why\":\"...\",\"sources\":[\"...\"]}],\"opinion_percentage\":0,\"summary\":\"...\"}"
+    );
+
+    return parts.join("\n");
+  }
 
   // ---- API callers ----
-  function callOpenAI(key, model, articleText){
+  function callOpenAI(key, model, articleText, system){
     return fetch("https://api.openai.com/v1/chat/completions",{
       method:"POST",
       headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+key },
@@ -407,7 +505,7 @@
         temperature: 0,
         response_format: { type:"json_object" },
         messages:[
-          { role:"system", content: SYSTEM },
+          { role:"system", content: system },
           { role:"user", content: "Here is the article text to analyze:\n\n"+articleText }
         ]
       })
@@ -416,7 +514,7 @@
     });
   }
 
-  function callAnthropic(key, model, articleText){
+  function callAnthropic(key, model, articleText, system){
     return fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
       headers:{
@@ -429,14 +527,54 @@
         model: model,
         max_tokens: 8000,
         temperature: 0,
-        system: SYSTEM,
+        system: system,
         messages:[
           { role:"user", content: "Here is the article text to analyze:\n\n"+articleText }
         ]
       })
     }).then(handleHttp).then(function(data){
-      // concatenate any text blocks
       return (data.content||[]).filter(function(b){return b.type==="text";}).map(function(b){return b.text;}).join("");
+    });
+  }
+
+  function callGoogle(key, model, articleText, system){
+    var url = "https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent?key="+encodeURIComponent(key);
+    return fetch(url,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts:[{ text: system }] },
+        contents: [{ role:"user", parts:[{ text: "Here is the article text to analyze:\n\n"+articleText }] }],
+        generationConfig: {
+          temperature: 0,
+          responseMimeType: "application/json",
+          maxOutputTokens: 8000
+        }
+      })
+    }).then(handleHttp).then(function(data){
+      var cands = data.candidates || [];
+      if(!cands.length) throw new Error("Gemini returned no candidates (possibly blocked by safety filter).");
+      var parts = (cands[0].content && cands[0].content.parts) || [];
+      return parts.map(function(p){return p.text||"";}).join("");
+    });
+  }
+
+  function callXAI(key, model, articleText, system){
+    // xAI's API is OpenAI-compatible
+    return fetch("https://api.x.ai/v1/chat/completions",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+key },
+      body: JSON.stringify({
+        model: model,
+        temperature: 0,
+        response_format: { type:"json_object" },
+        messages:[
+          { role:"system", content: system },
+          { role:"user", content: "Here is the article text to analyze:\n\n"+articleText }
+        ]
+      })
+    }).then(handleHttp).then(function(data){
+      return data.choices[0].message.content;
     });
   }
 
@@ -446,8 +584,9 @@
       var msg = t;
       try{ var j = JSON.parse(t); msg = (j.error && (j.error.message||j.error.type)) || t; }catch(e){}
       var prefix = "HTTP "+resp.status+": ";
-      if(resp.status===401) prefix = "Authentication failed (401) — ";
-      if(resp.status===429) prefix = "Rate limit / quota (429) — ";
+      if(resp.status===400) prefix = "Bad request (400) — ";
+      if(resp.status===401 || resp.status===403) prefix = "Authentication failed ("+resp.status+") — ";
+      if(resp.status===429) prefix = "Rate limit / quota ("+resp.status+") — ";
       if(resp.status===404) prefix = "Model not found (404) — ";
       throw new Error(prefix + msg);
     });
@@ -457,22 +596,19 @@
   function parseModelJSON(raw){
     if(!raw) throw new Error("The model returned an empty response.");
     var s = raw.trim();
-    // strip code fences if present
     s = s.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"");
-    // grab the outermost {...} if there's stray text
     var first = s.indexOf("{"), last = s.lastIndexOf("}");
     if(first>0 || last<s.length-1){ if(first!==-1 && last!==-1) s = s.slice(first,last+1); }
     return JSON.parse(s);
   }
 
-  // ---- grounding check: does the quote actually appear in the article? ----
+  // ---- grounding ----
   function norm(t){ return (t||"").toLowerCase().replace(/\s+/g," ").replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').trim(); }
   function quoteFound(quote, articleText){
     var q = norm(quote);
-    if(q.length < 6) return true; // too short to meaningfully check
+    if(q.length < 6) return true;
     var a = norm(articleText);
     if(a.indexOf(q) !== -1) return true;
-    // fallback: check a long inner chunk (handles tiny truncation diffs)
     if(q.length > 40){
       var chunk = q.slice(5, q.length-5);
       if(a.indexOf(chunk) !== -1) return true;
@@ -483,7 +619,7 @@
   // ---- rendering ----
   function esc(t){ var d=document.createElement("div"); d.textContent = (t==null?"":String(t)); return d.innerHTML; }
 
-  function render(data, articleText){
+  function render(data, articleText, includeLoaded, includeDig){
     var claims = Array.isArray(data.claims) ? data.claims : [];
     var counts = {named:0, vague:0, unsourced:0};
     claims.forEach(function(c){
@@ -495,9 +631,12 @@
     var opin = Math.max(0, Math.min(100, parseInt(data.opinion_percentage,10) || 0));
     var fact = 100 - opin;
 
+    var loaded = (includeLoaded && Array.isArray(data.loaded_language)) ? data.loaded_language : [];
+    var dig    = (includeDig    && Array.isArray(data.dig_deeper))      ? data.dig_deeper      : [];
+
     var html = "";
 
-    // verdict
+    // ---- VERDICT ----
     html += '<div class="verdict">';
     html += '<p class="summary">'+ esc(data.summary || "Analysis complete.") +'</p>';
     html += '<div class="meter-label"><span>Fact-based '+fact+'%</span><span>'+opin+'% Opinion</span></div>';
@@ -505,16 +644,17 @@
           + '<div class="opin" style="width:0%" data-w="'+opin+'">'+(opin>=12?opin+'% opinion':'')+'</div></div>';
     html += '<div class="meter-note">A rough, model-estimated split of substantive content. Treat it as a gut-check, not a measurement.</div>';
 
-    // tally
-    html += '<div class="tally">'
+    // tally row
+    var tallyCells = ''
       + cell(total,"tot","Statistical claims")
       + cell(counts.named,"green","Named source")
       + cell(counts.vague,"amber","Vague attribution")
-      + cell(counts.unsourced,"red","No source")
-      + '</div>';
-    html += '</div>'; // verdict
+      + cell(counts.unsourced,"red","No source");
+    if(includeLoaded) tallyCells += cell(loaded.length,"purple","Loaded phrases");
+    html += '<div class="tally">'+tallyCells+'</div>';
+    html += '</div>'; // /verdict
 
-    // ledger
+    // ---- LEDGER ----
     html += '<div class="ledger-head">The Ledger</div>';
     if(total===0){
       html += '<div class="empty">No statistical or quantitative claims were found in this text. If that seems wrong, make sure you pasted the full article body.</div>';
@@ -547,24 +687,64 @@
       });
     }
 
+    // ---- LOADED LANGUAGE ----
+    if(includeLoaded){
+      html += '<div class="ledger-head">Rhetorical Cargo</div>';
+      if(loaded.length === 0){
+        html += '<div class="empty">No clear instances of loaded language flagged. The piece reads as relatively neutral in framing.</div>';
+      } else {
+        loaded.forEach(function(L){
+          var verified = quoteFound(L.quote, articleText);
+          html += '<div class="loaded-card">';
+          html += '<div class="loaded-top"><span class="loaded-phrase">"'+ esc(L.phrase || "(phrase)") +'"</span><span class="loaded-kind">'+ esc(L.kind || "framing") +'</span></div>';
+          if(L.quote){
+            html += '<div class="quote">'+ esc(L.quote)
+                  + (verified ? '' : ' <span class="badge-unverified">quote not found verbatim</span>') +'</div>';
+          }
+          if(L.note){ html += '<div class="note">'+ esc(L.note) +'</div>'; }
+          html += '</div>';
+        });
+      }
+    }
+
+    // ---- DIG DEEPER ----
+    if(includeDig){
+      html += '<div class="ledger-head">Dig Deeper</div>';
+      if(dig.length === 0){
+        html += '<div class="empty">No research directions suggested for this article.</div>';
+      } else {
+        dig.forEach(function(d){
+          html += '<div class="dig-card">';
+          html += '<div class="dig-q">'+ esc(d.question || "") +'</div>';
+          if(d.why){ html += '<div class="dig-why">'+ esc(d.why) +'</div>'; }
+          if(Array.isArray(d.sources) && d.sources.length){
+            html += '<div class="dig-sources"><span class="k">Try</span>';
+            d.sources.forEach(function(s, i){
+              var q = encodeURIComponent(String(s));
+              html += (i>0?' · ':'') + '<a href="https://duckduckgo.com/?q='+q+'" target="_blank" rel="noopener">'+ esc(s) +'</a>';
+            });
+            html += '</div>';
+          }
+          html += '</div>';
+        });
+      }
+    }
+
     results.innerHTML = html;
 
-    // animate meter + stagger claims
     requestAnimationFrame(function(){
       results.querySelectorAll(".meter .fact,.meter .opin").forEach(function(b){ b.style.width = b.getAttribute("data-w")+"%"; });
-      results.querySelectorAll(".claim").forEach(function(c,i){ c.style.animationDelay = (i*0.05)+"s"; });
+      results.querySelectorAll(".claim,.loaded-card,.dig-card").forEach(function(c,i){ c.style.animationDelay = (i*0.04)+"s"; });
     });
     results.scrollIntoView({behavior:"smooth", block:"start"});
   }
   function cell(n,cls,cap){ return '<div class="cell"><div class="num '+cls+'">'+n+'</div><div class="cap">'+cap+'</div></div>'; }
 
-  // ---- error display ----
   function showError(title, msg){
     errslot.innerHTML = '<div class="errbox"><b>'+esc(title)+'</b>'+esc(msg)+'</div>';
   }
   function clearError(){ errslot.innerHTML = ""; }
 
-  // ---- main ----
   function setBusy(b, label){
     analyzeBtn.disabled = b;
     statusEl.innerHTML = b ? ('<span class="spinner"></span>'+(label||"Reading…")) : "";
@@ -577,17 +757,25 @@
     var text = article.value.trim();
     var model = modelSel.value === "__custom__" ? customModel.value.trim() : modelSel.value;
     var prov = providerSel.value;
+    var includeLoaded = optLoaded.checked;
+    var includeDig    = optDig.checked;
 
     if(!key){ el("setup").open = true; showError("Missing key","Enter your API key in the Setup panel above."); keyInput.focus(); return; }
-    if(model==="" ){ showError("Missing model","Enter a custom model id, or pick one from the list."); return; }
+    if(model===""){ showError("Missing model","Enter a custom model id, or pick one from the list."); return; }
     if(text.length < 40){ showError("Not enough text","Paste the article text into the box first (at least a paragraph)."); article.focus(); return; }
 
     setBusy(true, "Auditing the article…");
 
-    var p = (prov==="anthropic") ? callAnthropic(key, model, text) : callOpenAI(key, model, text);
+    var system = buildSystem(includeLoaded, includeDig);
+    var p;
+    if(prov==="anthropic")    p = callAnthropic(key, model, text, system);
+    else if(prov==="google")  p = callGoogle(key, model, text, system);
+    else if(prov==="xai")     p = callXAI(key, model, text, system);
+    else                      p = callOpenAI(key, model, text, system);
+
     p.then(function(raw){
       var data = parseModelJSON(raw);
-      render(data, text);
+      render(data, text, includeLoaded, includeDig);
       setBusy(false);
     }).catch(function(err){
       setBusy(false);
@@ -595,7 +783,7 @@
       if(/Failed to fetch|NetworkError|Load failed/i.test(m)){
         showError("Couldn't reach the provider",
           "The request was blocked or failed. This usually means a network/CORS issue or an invalid key. "+
-          "If you're opening this file directly and the provider blocks the request, try the other provider, or host the file on a simple static site.");
+          "If you're opening this file directly and the provider blocks the request, try a different provider, or host the file on a simple static site.");
       } else if(/JSON|Unexpected token|parse/i.test(m)){
         showError("The model didn't return clean data", "Try again, or switch to a stronger model in Setup. ("+m+")");
       } else {
@@ -604,12 +792,10 @@
     });
   });
 
-  // Ctrl/Cmd+Enter to run
   article.addEventListener("keydown", function(e){
     if((e.metaKey||e.ctrlKey) && e.key==="Enter"){ analyzeBtn.click(); }
   });
 
-  // dateline date
   try{
     var d = new Date();
     el("dateline-right").textContent = d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}).toUpperCase();
