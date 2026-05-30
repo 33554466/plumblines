@@ -313,6 +313,43 @@
   }
   footer.colophon b{color:var(--ink-soft);}
 
+  /* opt-in reader tally */
+  .reader-mark{
+    margin-top:48px;border:1px solid var(--rule);
+    background:rgba(255,252,245,.5);
+    padding:18px 22px;text-align:center;
+    box-shadow:2px 2px 0 var(--shadow);
+    transition:opacity .3s;
+  }
+  .rm-label{
+    font-family:"JetBrains Mono",monospace;font-size:10.5px;
+    letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);
+    margin-bottom:10px;
+  }
+  .rm-text{
+    font-family:"Spectral",serif;font-style:italic;font-size:15px;
+    color:var(--ink-soft);display:block;margin-bottom:12px;
+  }
+  .rm-count{
+    font-family:"Fraunces",serif;font-weight:900;color:var(--red);
+    font-style:normal;font-size:17px;
+  }
+  .rm-btn{
+    font-family:"JetBrains Mono",monospace;font-size:11px;
+    letter-spacing:.16em;text-transform:uppercase;
+    background:var(--paper);color:var(--ink);border:1px solid var(--ink-soft);
+    padding:9px 22px;cursor:pointer;transition:all .12s;
+  }
+  .rm-btn:hover:not(:disabled){
+    background:var(--ink);color:var(--paper);border-color:var(--ink);
+    transform:translateY(-1px);
+  }
+  .rm-btn:disabled{opacity:.5;cursor:default;}
+  .rm-fine{
+    font-family:"JetBrains Mono",monospace;font-size:9.5px;
+    letter-spacing:.06em;color:var(--ink-faint);margin-top:10px;
+  }
+
   /* ---------- print / PDF ---------- */
   @media print{
     body{background:#fff!important;color:#000;font-size:11pt;}
@@ -321,7 +358,7 @@
     header.masthead{border-bottom:2px solid #000;padding:8pt 0 6pt;margin-bottom:0;}
     h1.title{font-size:36pt;}
     .subtitle,.dateline,.kicker{display:none;}
-    .shared-banner,details.setup,section.panel,.result-actions,footer.colophon,.toast,.status,.errbox{display:none!important;}
+    .shared-banner,details.setup,section.panel,.result-actions,footer.colophon,.toast,.status,.errbox,.reader-mark{display:none!important;}
     .verdict{border:1px solid #000;background:#fff;box-shadow:none;page-break-inside:avoid;margin-top:14pt;}
     .claim,.loaded-card,.dig-card{box-shadow:none;background:#fff;page-break-inside:avoid;animation:none;}
     .claim.named{border-left:4px solid #000;}
@@ -447,6 +484,15 @@
   </section>
 
   <div id="results"></div>
+
+  <div class="reader-mark" id="reader-mark" style="display:none;">
+    <div class="rm-label">The Tally</div>
+    <div class="rm-content">
+      <span class="rm-text" id="rm-text">If Provenance helped, leave a mark.</span>
+      <button class="rm-btn" id="rm-btn">I read here</button>
+    </div>
+    <div class="rm-fine">Anonymous · no account, no cookies, no tracking · counts only those who click.</div>
+  </div>
 
   <footer class="colophon">
     <div><b>PROVENANCE</b> reports only what the article itself provides. It does <b>not</b> verify whether a claim is true, and it does <b>not</b> hunt down sources on its own.</div>
@@ -1349,6 +1395,71 @@
 
   // boot
   tryLoadShared();
+
+  // ---- opt-in reader tally (counts only those who click) ----
+  // Uses Abacus by Jason Cameron — free, no-auth public counter service.
+  // If the service ever disappears, swap these URLs for any compatible counter API
+  // (or remove the .reader-mark block entirely; nothing else depends on it).
+  var COUNTER = {
+    hitUrl: "https://abacus.jasoncameron.dev/hit/plumblines/visits",
+    getUrl: "https://abacus.jasoncameron.dev/get/plumblines/visits"
+  };
+  var rm = $("reader-mark"), rmText = $("rm-text"), rmBtn = $("rm-btn");
+
+  function fmtCount(n){
+    if(n == null || isNaN(n)) return "—";
+    return Number(n).toLocaleString();
+  }
+  function showCount(n){
+    rmText.innerHTML = 'You\'ve left your mark · <span class="rm-count">' + fmtCount(n) + '</span> readers and counting.';
+    rmBtn.style.display = "none";
+  }
+  function showButton(){
+    rmText.textContent = "If Provenance helped, leave a mark.";
+    rmBtn.style.display = "inline-block";
+    rmBtn.disabled = false;
+  }
+  function hideTally(){ rm.style.display = "none"; }
+
+  function bootTally(){
+    var counted = lsGet("rm-counted") === "1";
+    rm.style.display = "block";
+    if(counted){
+      // already counted on this device — fetch current total and show
+      fetch(COUNTER.getUrl).then(function(r){
+        if(!r.ok) throw new Error("get failed");
+        return r.json();
+      }).then(function(data){
+        if(data && typeof data.value === "number") showCount(data.value);
+        else rmText.innerHTML = 'You\'ve left your mark · tally unavailable right now.';
+      }).catch(function(){
+        rmText.innerHTML = 'You\'ve left your mark on Provenance.';
+        rmBtn.style.display = "none";
+      });
+    } else {
+      showButton();
+    }
+  }
+
+  rmBtn.addEventListener("click", function(){
+    rmBtn.disabled = true;
+    rmBtn.textContent = "Marking…";
+    fetch(COUNTER.hitUrl).then(function(r){
+      if(!r.ok) throw new Error("hit failed");
+      return r.json();
+    }).then(function(data){
+      if(data && typeof data.value === "number"){
+        lsSet("rm-counted", "1");
+        showCount(data.value);
+      } else { throw new Error("bad response"); }
+    }).catch(function(){
+      rmBtn.disabled = false;
+      rmBtn.textContent = "I read here";
+      rmText.textContent = "Counter is briefly unreachable — try again in a moment.";
+    });
+  });
+
+  bootTally();
 
 })();
 </script>
