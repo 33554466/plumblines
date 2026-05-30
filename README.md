@@ -89,9 +89,10 @@ After the audit renders, you can **Copy share link**, **Export Markdown**, or **
 - Your **API key** is stored only in your browser's `localStorage` (and only if you tick "Remember"). It is sent only to the AI provider's API. It never touches a server I control.
 - The **article text** you paste is sent only to the AI provider you chose. It is *not* included in shareable links.
 - Shareable links contain only the **analysis result**, encoded into the URL fragment (the part after the `#`). URL fragments are never sent to web servers — they exist only in your browser.
-- This entire tool is the `index.html` file in this repo. There is no analytics, no telemetry, no tracking, no account system, no cookies.
+- There is **no automatic analytics, no telemetry, no tracking, no account system, no cookies**. Visits are not counted by default.
+- There is one **opt-in tally** at the bottom of the page — if you click "I read here," your browser makes a single anonymous request to a free public counter service (Abacus) which increments and returns a running total. No personal data is sent. No cookies are set. The only thing stored locally is a flag so the button doesn't reappear on your next visit.
 
-If you're security-cautious: read the source. The file is human-readable, ~70 KB. Search for `fetch(` to find every outbound network call; you'll only ever see the four AI providers' endpoints and Google Fonts.
+If you're security-cautious: read the source. The file is human-readable. Search for `fetch(` to find every outbound network call; you'll see the four AI providers' endpoints, Google Fonts, and the opt-in counter — nothing else.
 
 ---
 
